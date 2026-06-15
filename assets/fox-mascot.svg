@@ -1,0 +1,56 @@
+<svg viewBox="0 0 480 520" fill="none" xmlns="http://www.w3.org/2000/svg">
+  
+
+  
+  <ellipse cx="240" cy="498" rx="150" ry="10" fill="rgba(240,240,232,.06)"></ellipse>
+
+  
+  <path d="M335 310 C 365 250, 405 270, 395 330 C 385 375, 350 365, 340 335 Z" fill="#F0F0E8"></path>
+  <path d="M395 330 C 385 375, 350 365, 340 335" fill="#00E068" stroke="none"></path>
+
+  
+  <path d="M178 268 Q 240 248 302 268 L 298 408 Q 240 422 182 408 Z" fill="#F0F0E8"></path>
+
+  
+  <rect x="192" y="398" width="32" height="68" rx="6" fill="#F0F0E8"></rect>
+  <rect x="256" y="398" width="32" height="68" rx="6" fill="#F0F0E8"></rect>
+  <ellipse cx="208" cy="468" rx="20" ry="8" fill="#D8D8CC"></ellipse>
+  <ellipse cx="272" cy="468" rx="20" ry="8" fill="#D8D8CC"></ellipse>
+
+  
+  <path d="M178 252 Q 240 236 302 252 L 302 278 Q 240 264 178 278 Z" fill="#00E068"></path>
+  <path d="M292 264 L 322 300 L 308 306 L 282 274 Z" fill="#00B856"></path>
+
+  
+  
+  <polygon points="172,155 195,55 218,150" fill="#F0F0E8"></polygon>
+  <polygon points="181,148 197,78 212,148" fill="#00E068"></polygon>
+  
+  <polygon points="262,150 285,55 308,155" fill="#F0F0E8"></polygon>
+  <polygon points="268,148 283,78 299,148" fill="#00E068"></polygon>
+
+  
+  <ellipse cx="240" cy="178" rx="62" ry="56" fill="#F0F0E8"></ellipse>
+
+  
+  <polygon points="184,190 168,178 180,205" fill="#E0E0D4"></polygon>
+  <polygon points="296,190 312,178 300,205" fill="#E0E0D4"></polygon>
+
+  
+  <ellipse cx="224" cy="198" rx="22" ry="15" fill="#E0E0D4"></ellipse>
+  
+  <ellipse cx="216" cy="194" rx="6" ry="5" fill="#0A0C0B"></ellipse>
+
+  
+  <rect x="192" y="160" width="92" height="19" rx="4" fill="#0A0C0B"></rect>
+  <line x1="274" y1="165" x2="271" y2="173" stroke="rgba(240,240,232,.5)" stroke-width="2.5" stroke-linecap="round"></line>
+
+  
+  <path d="M220 210 q7 5 14 1" stroke="#0A0C0B" stroke-width="2.5" stroke-linecap="round" fill="none"></path>
+
+  
+  <path d="M178 295 L 152 342" stroke="#F0F0E8" stroke-width="16" stroke-linecap="round"></path>
+  <circle cx="150" cy="345" r="10" fill="#F0F0E8"></circle>
+  <path d="M302 295 L 328 342" stroke="#F0F0E8" stroke-width="16" stroke-linecap="round"></path>
+  <circle cx="330" cy="345" r="10" fill="#F0F0E8"></circle>
+</svg>
