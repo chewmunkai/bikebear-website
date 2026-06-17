@@ -142,6 +142,11 @@ h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.02;letter-spac
 @media(max-width:900px){.loop-grid{grid-template-columns:1fr 1fr;}}
 @media(max-width:560px){.loop-grid{grid-template-columns:1fr;}}
 
+/* ============================== DEMO VIDEO ============================== */
+.demo-frame{max-width:960px;margin:2.6rem auto 0;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--dusk);box-shadow:0 50px 100px -55px rgba(33,28,22,.6);}
+.demo-frame video{width:100%;display:block;}
+.demo-note{text-align:center;margin-top:1.2rem;font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+
 /* ============================== PROOF / DECISION JOURNAL ============================== */
 .proof{background:var(--dusk);color:var(--cream);}
 .proof h2{color:var(--cream);}
@@ -292,6 +297,7 @@ h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.02;letter-spac
     </a>
     <div class="nav-links">
       <a href="#how">How it works</a>
+      <a href="#watch">Watch</a>
       <a href="#proof">Proof</a>
       <a href="#pricing">Pricing</a>
       <a href="#cta" class="btn btn-primary">Get a free ad teardown</a>
@@ -387,6 +393,20 @@ h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.02;letter-spac
         <h3>Execute</h3><p>Acts on it automatically — or asks you first. Your call, brand by brand.</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ DEMO VIDEO ============ -->
+<section class="sec" id="watch">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <p class="eyebrow">See it in 30 seconds</p>
+      <h2>This is what working with Talous feels like.</h2>
+    </div>
+    <div class="demo-frame reveal">
+      <video src="assets/talous-demo.mp4" poster="assets/talous-demo-poster.png" autoplay muted loop playsinline controls preload="metadata"></video>
+    </div>
+    <p class="demo-note reveal">Aisyah's story · 30 seconds · sound off</p>
   </div>
 </section>
 
