@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free ad teardown — Talous</title>
+<meta name="description" content="Get a free teardown of your Meta ads. We'll show you exactly what we'd fix in your first week — the leaks, the winners, the money on the table. No pitch, no obligation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="grain"></div>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="logo"><svg class="mark" viewBox="0 0 32 32" fill="none"><path d="M16 4c-5 0-8 3.2-8 7.4 0 4.6 3.8 6.7 8 8.2 4.2 1.5 8 3.6 8 8.2 0 4.2-3 7.4-8 7.4" stroke="#1F6B47" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="16" r="2.6" fill="#DC8C36"/></svg>talous</a>
+    <div class="nav-links">
+      <a href="how-it-works.html">How it works</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="story.html">Story</a>
+      <a href="teardown.html" class="btn btn-primary current">Get a free teardown</a>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="how-it-works.html">How it works</a><a href="pricing.html">Pricing</a><a href="story.html">Story</a><a href="teardown.html" class="btn btn-primary">Get a free teardown</a>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="wrap">
+    <p class="eyebrow">Free · no pitch · no obligation</p>
+    <h1>Let's look at your ads together — <span class="serif-it">free.</span></h1>
+    <p class="lead">Tell us a little about your business. We'll review your live Meta ads and send back exactly what we'd fix in your first week.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="form-grid">
+      <!-- FORM -->
+      <div class="form-card reveal">
+        <form id="teardownForm">
+          <div class="field"><label for="name">Your name</label><input id="name" name="name" type="text" placeholder="Aisyah Rahman" required></div>
+          <div class="field"><label for="business">Business name</label><input id="business" name="business" type="text" placeholder="Glow Skincare Co." required></div>
+          <div class="field"><label for="website">Website or Instagram</label><input id="website" name="website" type="text" placeholder="@glowskincare or glow.my" required></div>
+          <div class="field"><label for="spend">Monthly ad spend</label>
+            <select id="spend" name="spend" required>
+              <option value="" disabled selected>Choose a range</option>
+              <option>Under RM5,000</option>
+              <option>RM5,000 – RM15,000</option>
+              <option>RM15,000 – RM50,000</option>
+              <option>RM50,000 – RM150,000</option>
+              <option>RM150,000+</option>
+            </select>
+          </div>
+          <div class="field"><label for="whatsapp">WhatsApp number</label><input id="whatsapp" name="whatsapp" type="tel" placeholder="+60 12-345 6789" required></div>
+          <div class="field"><label for="notes">Anything you want us to look at? (optional)</label><textarea id="notes" name="notes" placeholder="e.g. our cost per sale keeps creeping up"></textarea></div>
+          <button type="submit" class="btn btn-primary">Send my free teardown request
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17 17 7M9 7h8v8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <p class="form-note">Prefer to chat? <a href="https://wa.me/60000000000?text=Hi%20Talous%2C%20I%27d%20like%20a%20free%20ad%20teardown" style="color:var(--green);font-weight:600">Message us on WhatsApp →</a></p>
+        </form>
+        <div class="form-ok" id="formOk">
+          <div class="big">Got it — talk soon! 🎉</div>
+          <p class="muted">We'll review your ads and send your teardown within 2 working days, on WhatsApp. No pitch, promise.</p>
+        </div>
+      </div>
+
+      <!-- WHAT YOU GET -->
+      <div class="reveal" data-d="1">
+        <p class="eyebrow dim">What you'll get back</p>
+        <h2 style="font-size:clamp(1.7rem,3.4vw,2.6rem);margin:1rem 0 2rem">A clear, honest read on your ads.</h2>
+        <ul class="checklist">
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h4>Where money is leaking</h4><p>The ads quietly burning budget with little to show — and what we'd do about each.</p></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h4>Your hidden winners</h4><p>The ads worth scaling that you might be under-feeding right now.</p></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h4>The first-week plan</h4><p>The exact changes we'd make in week one, in plain language — no jargon.</p></div></li>
+          <li><span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m5 12 5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><h4>Which plan fits</h4><p>An honest recommendation — including "you don't need us yet," if that's the truth.</p></div></li>
+        </ul>
+        <p class="muted" style="margin-top:1.8rem;font-size:.95rem">Read-only access only. We never spend or change anything without your say-so.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div>
+        <a href="index.html" class="logo"><svg class="mark" viewBox="0 0 32 32" fill="none"><path d="M16 4c-5 0-8 3.2-8 7.4 0 4.6 3.8 6.7 8 8.2 4.2 1.5 8 3.6 8 8.2 0 4.2-3 7.4-8 7.4" stroke="#52C68D" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="16" r="2.6" fill="#F3B85F"/></svg>talous</a>
+        <p class="foot-tag"><span class="serif-it" style="color:var(--cream)">Talous</span> — Finnish for the health of your household economy. We just look after the marketing side of it.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col"><h5>Product</h5><a href="how-it-works.html">How it works</a><a href="how-it-works.html#proof">The Decision Journal</a><a href="pricing.html">Pricing</a></div>
+        <div class="foot-col"><h5>Company</h5><a href="story.html">Story</a><a href="teardown.html">Free teardown</a><a href="teardown.html">Contact</a></div>
+        <div class="foot-col"><h5>Made for</h5><a href="index.html">Malaysia 🇲🇾</a><a href="index.html">Southeast Asia</a></div>
+      </div>
+    </div>
+    <div class="foot-bot"><span>© 2026 Talous</span><span>Marketing that proves itself.</span></div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
