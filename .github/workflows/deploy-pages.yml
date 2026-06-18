@@ -37,6 +37,8 @@ jobs:
           cp index.html _site/
           cp robots.txt _site/ 2>/dev/null || true
           cp sitemap.xml _site/ 2>/dev/null || true
+          # Talous landing page (imported from Claude Design handoff)
+          cp -r talous _site/ 2>/dev/null || true
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

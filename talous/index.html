@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Talous — The Agency Operating System</title>
+<meta name="description" content="Projects, clients, invoices, and ad campaigns on one canvas — with AI that does the work, not just chats about it." />
+<link rel="preconnect" href="https://api.fontshare.com" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=zodiak@400,401,701&f[]=general-sans@400,401,500,600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  /* canvas — warm near-black (BikeBear backbone) */
+  --ink:#0B0A09; --ink-2:#131110; --ink-3:#1B1815; --ink-4:#252019;
+  /* text */
+  --bone:#EFE9DD; --bone-dim:rgba(239,233,221,.56); --bone-faint:rgba(239,233,221,.34);
+  /* NEW identity — electric iris primary + warm gold metric accent */
+  --iris:#8B7BFF; --iris-bright:#B7A9FF; --iris-deep:#5B49D6; --iris-dim:rgba(139,123,255,.14);
+  --gold:#FFC24B; --gold-dim:rgba(255,194,75,.14);
+  --line:rgba(239,233,221,.12); --line-2:rgba(239,233,221,.07);
+  /* type */
+  --display:'Clash Display',sans-serif; --serif:'Zodiak',serif; --body:'General Sans',sans-serif;
+  /* motion */
+  --ease-out:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1);
+  --page-px:clamp(1.3rem,4vw,3rem); --max:1240px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--body); background:var(--ink); color:var(--bone);
+  -webkit-font-smoothing:antialiased; overflow-x:hidden; line-height:1.6;
+}
+body:not(.no-custom-cursor){cursor:none}
+body:not(.no-custom-cursor) a, body:not(.no-custom-cursor) button{cursor:none}
+::selection{background:var(--iris);color:#0B0A09}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+h1,h2,h3,h4{font-family:var(--display);font-weight:600;letter-spacing:-.02em;line-height:.95}
+.serif{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:0}
+.iris{color:var(--iris)}
+.gold{color:var(--gold)}
+
+/* ---------- grain ---------- */
+.grain{position:fixed;inset:-120%;z-index:300;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 8s steps(10) infinite}
+@keyframes grain{0%,100%{transform:translate(0,0)}10%{transform:translate(-5%,-10%)}20%{transform:translate(-15%,5%)}30%{transform:translate(7%,-25%)}40%{transform:translate(-5%,25%)}50%{transform:translate(-15%,10%)}60%{transform:translate(15%,0)}70%{transform:translate(0,15%)}80%{transform:translate(3%,35%)}90%{transform:translate(-10%,10%)}}
+
+/* ---------- custom cursor ---------- */
+.cursor-dot,.cursor-ring{position:fixed;top:0;left:0;border-radius:99px;pointer-events:none;z-index:400;mix-blend-mode:difference;will-change:transform}
+.cursor-dot{width:7px;height:7px;background:var(--iris-bright);margin:-3.5px 0 0 -3.5px}
+.cursor-ring{width:42px;height:42px;border:1.5px solid rgba(183,169,255,.7);margin:-21px 0 0 -21px;transition:width .25s var(--ease-out),height .25s var(--ease-out),margin .25s var(--ease-out),background .25s}
+.cursor-ring.is-hover{width:64px;height:64px;margin:-32px 0 0 -32px;background:rgba(139,123,255,.12)}
+.no-custom-cursor .cursor-dot,.no-custom-cursor .cursor-ring{display:none}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;gap:.6em;font-family:var(--display);font-weight:600;font-size:.92rem;
+  letter-spacing:.01em;padding:.92em 1.7em;border-radius:99px;border:1px solid transparent;
+  transition:background .3s var(--ease-out),color .3s,border-color .3s,transform .3s var(--ease-out);white-space:nowrap}
+.btn--primary{background:var(--iris);color:#0B0A09}
+.btn--primary:hover{background:var(--iris-bright);transform:translateY(-2px)}
+.btn--ghost{background:transparent;color:var(--bone);border-color:var(--line)}
+.btn--ghost:hover{border-color:var(--bone);background:rgba(239,233,221,.04)}
+.btn svg{width:1.05em;height:1.05em}
+
+/* ---------- eyebrow / section label ---------- */
+.eyebrow{display:inline-flex;align-items:center;gap:.8rem;font-size:.72rem;letter-spacing:.3em;
+  text-transform:uppercase;color:var(--iris);font-weight:500}
+.eyebrow::before{content:"";width:2.2rem;height:1px;background:var(--iris);opacity:.7}
+.eyebrow--center{justify-content:center}
+.eyebrow--center::after{content:"";width:2.2rem;height:1px;background:var(--iris);opacity:.7}
+
+section{position:relative}
+.wrap{max-width:var(--max);margin:0 auto;padding-inline:var(--page-px)}
+.pad{padding-block:clamp(5rem,12vh,9rem)}
+
+/* ---------- nav ---------- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;
+  padding:1.25rem var(--page-px);transition:background .4s var(--ease-out),backdrop-filter .4s,padding .4s,border-color .4s;
+  border-bottom:1px solid transparent}
+.nav.scrolled{background:rgba(11,10,9,.72);backdrop-filter:blur(14px);border-bottom-color:var(--line);padding-block:.9rem}
+.logo{display:flex;align-items:center;gap:.6rem;font-family:var(--display);font-weight:600;font-size:1.25rem;letter-spacing:-.01em}
+.logo__mark{width:26px;height:26px;flex:none}
+.logo__mark .spin{transform-origin:50% 50%;transition:transform .6s var(--ease-out)}
+.logo:hover .spin{transform:rotate(135deg)}
+.nav__links{display:flex;align-items:center;gap:2.2rem}
+.nav__links a:not(.btn){font-size:.9rem;color:var(--bone-dim);transition:color .25s;position:relative}
+.nav__links a:not(.btn)::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1px;background:var(--iris);transform:scaleX(0);transform-origin:right;transition:transform .35s var(--ease-out)}
+.nav__links a:not(.btn):hover{color:var(--bone)}
+.nav__links a:not(.btn):hover::after{transform:scaleX(1);transform-origin:left}
+.nav__burger{display:none;flex-direction:column;gap:5px;width:26px;background:none;border:none;padding:4px}
+.nav__burger span{display:block;height:2px;background:var(--bone);transition:transform .3s var(--ease-out),opacity .3s}
+.nav__burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav__burger.open span:nth-child(2){opacity:0}
+.nav__burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;min-height:100svh;display:flex;align-items:center;overflow:hidden;padding-top:6rem}
+.hero__canvas{position:absolute;inset:0;z-index:0}
+.hero__canvas canvas{width:100%;height:100%;display:block}
+.hero__glow{position:absolute;z-index:0;width:60vw;height:60vw;left:55%;top:30%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(139,123,255,.18),transparent 62%);filter:blur(20px);pointer-events:none}
+.hero__inner{position:relative;z-index:2;width:100%}
+.hero h1{font-size:clamp(3.1rem,9.2vw,9.2rem);font-weight:700;letter-spacing:-.03em}
+.hero h1 .line{display:block;overflow:hidden}
+.hero__sub{max-width:46ch;margin-top:2rem;font-size:clamp(1rem,1.4vw,1.22rem);color:var(--bone-dim)}
+.hero__sub b{color:var(--bone);font-weight:600}
+.hero__cta{display:flex;flex-wrap:wrap;gap:1rem;margin-top:2.6rem}
+.hero__scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:.6rem;color:var(--bone-faint);font-size:.7rem;letter-spacing:.25em;text-transform:uppercase}
+.mouse{width:22px;height:34px;border:1.5px solid var(--bone-faint);border-radius:12px;position:relative}
+.mouse::after{content:"";position:absolute;left:50%;top:6px;width:3px;height:6px;border-radius:2px;background:var(--iris);transform:translateX(-50%);animation:wheel 1.8s var(--ease-io) infinite}
+@keyframes wheel{0%{opacity:0;transform:translate(-50%,0)}30%{opacity:1}60%{opacity:1;transform:translate(-50%,8px)}100%{opacity:0;transform:translate(-50%,12px)}}
+
+/* floating product chip in hero */
+.hero__chip{position:absolute;z-index:2;background:rgba(19,17,16,.78);backdrop-filter:blur(10px);
+  border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem;display:flex;align-items:center;gap:.7rem;
+  font-size:.82rem;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.hero__chip .ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}
+.hero__chip small{display:block;color:var(--bone-dim);font-size:.7rem;margin-top:.1rem}
+.chip-1{right:6%;top:20%}
+.chip-2{right:10%;bottom:12%;left:auto}
+@media(max-width:880px){.hero__chip{display:none}}
+
+/* ---------- marquee ---------- */
+.marquee{border-block:1px solid var(--line);padding-block:1.5rem;overflow:hidden;background:var(--ink-2)}
+.marquee__inner{display:flex;gap:3.5rem;width:max-content;animation:scrollx 32s linear infinite;will-change:transform}
+.marquee:hover .marquee__inner{animation-play-state:paused}
+.marquee__inner span{display:inline-flex;align-items:center;gap:3.5rem;font-family:var(--display);font-weight:600;
+  font-size:clamp(1.3rem,3vw,2.1rem);text-transform:uppercase;letter-spacing:-.01em;color:var(--bone)}
+.marquee__inner span::before{content:"✱";color:var(--iris);font-size:.7em}
+@keyframes scrollx{to{transform:translateX(-50%)}}
+
+/* ---------- manifesto ---------- */
+.manifesto{text-align:left}
+.manifesto__text{font-family:var(--display);font-weight:600;font-size:clamp(1.9rem,5.4vw,4.6rem);line-height:1.04;letter-spacing:-.02em;max-width:18ch}
+.manifesto__text .word{opacity:.16;transition:opacity .3s}
+.manifesto__text .serif{color:var(--iris)}
+
+/* ---------- feature blocks ---------- */
+.feat{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2.5rem,6vw,6rem);align-items:center}
+.feat--rev .feat__visual{order:-1}
+.feat__title{font-size:clamp(2rem,4.4vw,3.6rem);margin:1.4rem 0;font-weight:700}
+.feat__body{color:var(--bone-dim);max-width:42ch;font-size:1.05rem}
+.feat__list{list-style:none;margin-top:1.8rem;display:flex;flex-direction:column;gap:.85rem}
+.feat__list li{display:flex;gap:.8rem;align-items:flex-start;font-size:.98rem;color:var(--bone)}
+.feat__list .tick{flex:none;width:22px;height:22px;border-radius:99px;background:var(--iris-dim);color:var(--iris);display:grid;place-items:center;margin-top:.1rem}
+.feat__list .tick svg{width:13px;height:13px}
+@media(max-width:880px){.feat{grid-template-columns:1fr}.feat--rev .feat__visual{order:0}}
+
+/* mock surfaces (product visuals built from CSS) */
+.surface{background:linear-gradient(160deg,var(--ink-2),var(--ink-3));border:1px solid var(--line);border-radius:18px;
+  padding:1.3rem;box-shadow:0 30px 70px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.surface__bar{display:flex;align-items:center;gap:.45rem;margin-bottom:1.1rem}
+.surface__bar i{width:10px;height:10px;border-radius:99px;background:var(--ink-4)}
+.surface__tag{margin-left:auto;font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--bone-faint)}
+
+/* kanban mock */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem}
+.kanban__col h5{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--bone-dim);margin-bottom:.55rem;font-family:var(--body);font-weight:600}
+.kcard{background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:.6rem .65rem;margin-bottom:.5rem}
+.kcard p{font-size:.74rem;line-height:1.35;font-family:var(--body)}
+.kcard .meta{display:flex;align-items:center;gap:.35rem;margin-top:.5rem}
+.dotp{width:6px;height:6px;border-radius:99px}
+.kcard .av{margin-left:auto;width:18px;height:18px;border-radius:99px;background:var(--iris-deep);font-size:.55rem;display:grid;place-items:center;color:#fff;font-family:var(--body);font-weight:600}
+.pill{font-size:.58rem;padding:.12rem .5rem;border-radius:99px;letter-spacing:.04em;font-family:var(--body);font-weight:600;text-transform:uppercase}
+
+/* jarvis decision card mock */
+.jarvis{display:flex;flex-direction:column;gap:.7rem}
+.jrow{display:flex;align-items:center;gap:.7rem;background:var(--ink);border:1px solid var(--line);border-radius:11px;padding:.7rem .8rem}
+.jrow .verdict{margin-left:auto;display:flex;align-items:center;gap:.4rem;font-size:.66rem;font-family:var(--body);font-weight:600}
+.gauge{--p:0;width:38px;height:38px;border-radius:99px;flex:none;
+  background:conic-gradient(var(--iris) calc(var(--p)*1%),var(--ink-4) 0);display:grid;place-items:center}
+.gauge i{width:28px;height:28px;border-radius:99px;background:var(--ink-2);display:grid;place-items:center;font-size:.6rem;font-family:var(--body);font-weight:700}
+.jrow h6{font-size:.8rem;font-family:var(--display);font-weight:600;letter-spacing:0}
+.jrow small{color:var(--bone-dim);font-size:.66rem;font-family:var(--body)}
+.guard{display:flex;align-items:center;gap:.5rem;font-size:.68rem;color:var(--iris);font-family:var(--body);
+  background:var(--iris-dim);border:1px solid rgba(139,123,255,.25);border-radius:9px;padding:.55rem .7rem;margin-top:.2rem}
+
+/* ---------- AI teammates roster ---------- */
+.roster{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.mate{background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:1.4rem;transition:transform .4s var(--ease-out),border-color .4s,background .4s}
+.mate:hover{transform:translateY(-4px);border-color:rgba(139,123,255,.4);background:var(--ink-3)}
+.mate__ico{width:44px;height:44px;border-radius:12px;background:var(--iris-dim);color:var(--iris);display:grid;place-items:center;margin-bottom:1rem}
+.mate__ico svg{width:22px;height:22px}
+.mate h4{font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+.mate p{color:var(--bone-dim);font-size:.9rem;margin-top:.45rem}
+@media(max-width:880px){.roster{grid-template-columns:1fr}}
+
+/* ---------- horizontal capabilities track ---------- */
+.htrack-panel{overflow:hidden}
+.htrack{display:flex;gap:1.4rem;width:max-content;padding-inline:var(--page-px)}
+.cap{flex:none;width:min(78vw,420px);background:var(--ink-2);border:1px solid var(--line);border-radius:20px;padding:2.2rem;
+  display:flex;flex-direction:column;min-height:340px}
+.cap__num{font-family:var(--serif);font-style:italic;color:var(--iris);font-size:1rem}
+.cap h3{font-size:1.9rem;margin:1rem 0 .8rem;font-weight:700}
+.cap p{color:var(--bone-dim);font-size:.96rem}
+.cap__ico{margin-top:auto;width:48px;height:48px;border-radius:12px;background:var(--iris-dim);color:var(--iris);display:grid;place-items:center}
+.cap__ico svg{width:24px;height:24px}
+.htrack-head{display:flex;justify-content:space-between;align-items:flex-end;gap:2rem;flex-wrap:wrap;margin-bottom:2.6rem}
+@media(max-width:880px){
+  .htrack-panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .htrack{padding-block:1rem}
+}
+
+/* ---------- stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.stat{background:var(--ink);padding:2.4rem 1.6rem;text-align:center}
+.stat__n{font-family:var(--display);font-weight:600;font-size:clamp(2.6rem,6vw,4.2rem);letter-spacing:-.03em;line-height:1}
+.stat__n .suf{color:var(--iris)}
+.stat__l{color:var(--bone-dim);font-size:.82rem;margin-top:.7rem;letter-spacing:.02em}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- bento ---------- */
+.bento{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:170px;gap:1rem}
+.tile{background:var(--ink-2);border:1px solid var(--line);border-radius:16px;padding:1.4rem;display:flex;flex-direction:column;
+  justify-content:space-between;transition:transform .4s var(--ease-out),border-color .4s}
+.tile:hover{transform:translateY(-3px);border-color:rgba(139,123,255,.35)}
+.tile .t-ico{width:38px;height:38px;border-radius:10px;background:var(--ink-3);color:var(--iris);display:grid;place-items:center}
+.tile .t-ico svg{width:19px;height:19px}
+.tile h4{font-size:1.05rem;font-weight:600;letter-spacing:-.01em}
+.tile p{color:var(--bone-dim);font-size:.82rem;margin-top:.3rem}
+.tile--wide{grid-column:span 2}
+.tile--tall{grid-row:span 2}
+.tile--accent{background:linear-gradient(150deg,var(--iris-deep),#3a2e8f);border-color:transparent}
+.tile--accent .t-ico{background:rgba(255,255,255,.16);color:#fff}
+.tile--accent h4,.tile--accent p{color:#fff}
+.tile--accent p{color:rgba(255,255,255,.78)}
+@media(max-width:880px){.bento{grid-template-columns:repeat(2,1fr)}.tile--wide{grid-column:span 2}}
+@media(max-width:520px){.bento{grid-template-columns:1fr}.tile--wide,.tile--tall{grid-column:span 1;grid-row:span 1}}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:820px;margin-inline:auto}
+.faq__item{border-top:1px solid var(--line)}
+.faq__item:last-child{border-bottom:1px solid var(--line)}
+.faq__q{width:100%;background:none;border:none;color:var(--bone);text-align:left;display:flex;align-items:center;
+  justify-content:space-between;gap:1.5rem;padding:1.6rem 0;font-family:var(--display);font-weight:600;font-size:clamp(1.05rem,2.2vw,1.4rem);letter-spacing:-.01em}
+.faq__q .plus{flex:none;width:28px;height:28px;position:relative}
+.faq__q .plus::before,.faq__q .plus::after{content:"";position:absolute;left:50%;top:50%;background:var(--iris);transition:transform .35s var(--ease-out)}
+.faq__q .plus::before{width:14px;height:2px;transform:translate(-50%,-50%)}
+.faq__q .plus::after{width:2px;height:14px;transform:translate(-50%,-50%)}
+.faq__item.open .plus::after{transform:translate(-50%,-50%) rotate(90deg);opacity:0}
+.faq__a{max-height:0;overflow:hidden;transition:max-height .45s var(--ease-out)}
+.faq__a p{color:var(--bone-dim);padding-bottom:1.6rem;max-width:64ch;font-size:1rem}
+
+/* ---------- CTA band ---------- */
+.cta{position:relative;text-align:center;border-radius:26px;overflow:hidden;
+  background:radial-gradient(circle at 50% 120%,rgba(139,123,255,.28),transparent 60%),var(--ink-2);
+  border:1px solid var(--line);padding:clamp(3.5rem,8vw,6.5rem) var(--page-px)}
+.cta h2{font-size:clamp(2.4rem,6.5vw,5.2rem);font-weight:700;letter-spacing:-.03em}
+.cta p{color:var(--bone-dim);max-width:44ch;margin:1.4rem auto 2.4rem;font-size:1.1rem}
+.cta__row{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+
+/* ---------- footer ---------- */
+.footer{border-top:1px solid var(--line);padding-block:4rem 2.5rem}
+.footer__grid{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:2.5rem}
+.footer__brand p{color:var(--bone-dim);max-width:30ch;margin-top:1.1rem;font-size:.92rem}
+.footer__col h5{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-faint);margin-bottom:1.1rem;font-family:var(--body);font-weight:600}
+.footer__col a{display:block;color:var(--bone-dim);font-size:.92rem;padding:.32rem 0;transition:color .25s}
+.footer__col a:hover{color:var(--iris)}
+.footer__bot{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;
+  margin-top:3.5rem;padding-top:1.8rem;border-top:1px solid var(--line);color:var(--bone-faint);font-size:.82rem}
+@media(max-width:760px){.footer__grid{grid-template-columns:1fr 1fr}.footer__brand{grid-column:span 2}}
+
+/* mobile nav */
+@media(max-width:880px){
+  .nav__burger{display:flex}
+  .nav__links{position:fixed;inset:0;background:rgba(11,10,9,.97);backdrop-filter:blur(16px);
+    flex-direction:column;justify-content:center;gap:1.8rem;transform:translateX(100%);transition:transform .5s var(--ease-out)}
+  .nav__links.open{transform:translateX(0)}
+  .nav__links a:not(.btn){font-size:1.6rem;font-family:var(--display);color:var(--bone)}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+  .manifesto__text .word{opacity:1!important}
+}
+</style>
+</head>
+<body data-screen-label="Talous Landing">
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor-dot" aria-hidden="true"></div>
+<div class="cursor-ring" aria-hidden="true"></div>
+
+<!-- ================= NAV ================= -->
+<nav class="nav">
+  <a class="logo" href="#top" aria-label="Talous home">
+    <svg class="logo__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <g class="spin">
+        <circle cx="16" cy="16" r="13" stroke="#8B7BFF" stroke-width="1.6"/>
+        <circle cx="16" cy="16" r="4.2" fill="#8B7BFF"/>
+        <circle cx="29" cy="16" r="2.4" fill="#FFC24B"/>
+      </g>
+    </svg>
+    <span>Talous</span>
+  </a>
+  <div class="nav__links">
+    <a href="#platform">Platform</a>
+    <a href="#jarvis">Jarvis</a>
+    <a href="#teammates">AI Teammates</a>
+    <a href="#capabilities">Capabilities</a>
+    <a href="#faq">FAQ</a>
+    <a class="btn btn--primary" href="#cta">Start free</a>
+  </div>
+  <button class="nav__burger" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<header class="hero" id="top">
+  <div class="hero__canvas"><canvas id="hero-canvas"></canvas></div>
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="hero__chip chip-1" data-parallax="0.25">
+    <span class="ico" style="background:var(--gold-dim);color:var(--gold)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
+    </span>
+    <div><b>Jarvis paused 2 ads</b><small>CPL over threshold · auto-approved</small></div>
+  </div>
+  <div class="hero__chip chip-2" data-parallax="0.4">
+    <span class="ico" style="background:var(--iris-dim);color:var(--iris)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 6L9 17l-5-5"/></svg>
+    </span>
+    <div><b>Invoice #0412 paid</b><small>Matched to Northwind · RM 8,400</small></div>
+  </div>
+
+  <div class="hero__inner wrap">
+    <p class="eyebrow" data-reveal>The agency operating system</p>
+    <h1 data-reveal-group>
+      <span class="line" data-reveal-item>Run the whole</span>
+      <span class="line" data-reveal-item>agency on <span class="serif iris">one</span></span>
+      <span class="line" data-reveal-item>canvas.</span>
+    </h1>
+    <p class="hero__sub" data-reveal>Projects, clients, invoices, and ad campaigns in one place — with <b>AI that does the work</b>, not just chats about it.</p>
+    <div class="hero__cta" data-reveal>
+      <a class="btn btn--primary" href="#cta">Start free
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="#platform">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 5v14l11-7z"/></svg>
+        Watch the tour
+      </a>
+    </div>
+  </div>
+
+  <div class="hero__scroll" aria-hidden="true"><span class="mouse"></span>Scroll</div>
+</header>
+
+<!-- ================= MARQUEE ================= -->
+<div class="marquee" data-marquee aria-hidden="true">
+  <div class="marquee__inner">
+    <span>Projects</span><span>Clients</span><span>Invoices</span><span>Meta Ads</span><span>AI Teammates</span><span>OKRs</span><span>Time blocks</span><span>Forms</span>
+  </div>
+</div>
+
+<!-- ================= MANIFESTO ================= -->
+<section class="pad wrap">
+  <div class="manifesto" data-manifesto>
+    <p class="manifesto__text">
+      <span class="word">Your</span> <span class="word">agency</span> <span class="word">runs</span>
+      <span class="word">on</span> <span class="word">five</span> <span class="word">tools</span>
+      <span class="word">that</span> <span class="word">don't</span> <span class="word">talk.</span>
+      <span class="word serif">Talous</span> <span class="word">makes</span>
+      <span class="word">them</span> <span class="word">one.</span>
+    </p>
+  </div>
+</section>
+
+<!-- ================= FEATURE: ONE DATA MODEL ================= -->
+<section class="pad wrap" id="platform">
+  <div class="feat">
+    <div class="feat__copy" data-reveal>
+      <p class="eyebrow">One data model</p>
+      <h2 class="feat__title">Everything <span class="serif iris">connected</span>.</h2>
+      <p class="feat__body">A client links to their projects, which link to their invoices, which link to their ad campaigns. One shared record — not five tools pretending to sync.</p>
+      <ul class="feat__list">
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Kanban, timeline, and calendar views of the same work</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Custom fields, subtasks, dependencies, recurrence</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Convert a won lead to a client in one click</li>
+      </ul>
+    </div>
+    <div class="feat__visual" data-reveal>
+      <div class="surface" data-parallax="0.12">
+        <div class="surface__bar"><i></i><i></i><i></i><span class="surface__tag">Northwind · Board</span></div>
+        <div class="kanban">
+          <div class="kanban__col">
+            <h5>To do</h5>
+            <div class="kcard"><p>Q3 brand refresh</p><div class="meta"><span class="pill" style="background:var(--gold-dim);color:var(--gold)">High</span><span class="av">A</span></div></div>
+            <div class="kcard"><p>Landing page copy</p><div class="meta"><span class="pill" style="background:var(--iris-dim);color:var(--iris)">Med</span><span class="av">J</span></div></div>
+          </div>
+          <div class="kanban__col">
+            <h5>In progress</h5>
+            <div class="kcard"><p>Meta ads — July flight</p><div class="meta"><span class="dotp" style="background:var(--iris)"></span><small style="font-family:var(--body);font-size:.62rem;color:var(--bone-dim)">Jarvis</small><span class="av" style="background:var(--gold);color:#0B0A09">M</span></div></div>
+          </div>
+          <div class="kanban__col">
+            <h5>Done</h5>
+            <div class="kcard"><p>Invoice #0412</p><div class="meta"><span class="pill" style="background:rgba(67,209,127,.16);color:#43d17f">Paid</span></div></div>
+            <div class="kcard"><p>Discovery call</p><div class="meta"><span class="dotp" style="background:#43d17f"></span><span class="av">R</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FEATURE: JARVIS ================= -->
+<section class="pad wrap" id="jarvis">
+  <div class="feat feat--rev">
+    <div class="feat__copy" data-reveal>
+      <p class="eyebrow">Jarvis · Marketing automation</p>
+      <h2 class="feat__title">Automation you can <span class="serif iris">trust</span>.</h2>
+      <p class="feat__body">Jarvis syncs your Meta ad account every 5 minutes, spots ads crossing your thresholds, and proposes a fix. Every recommendation passes an AI Guard before anything touches your account.</p>
+      <ul class="feat__list">
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Confidence score &amp; risk level on every decision</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Conservative by default — only pause &amp; kill auto-run</li>
+        <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg></span>Every action journaled with full reasoning</li>
+      </ul>
+    </div>
+    <div class="feat__visual" data-reveal>
+      <div class="surface" data-parallax="0.12">
+        <div class="surface__bar"><i></i><i></i><i></i><span class="surface__tag">Jarvis · Approvals</span></div>
+        <div class="jarvis">
+          <div class="jrow">
+            <span class="gauge" style="--p:92"><i>92</i></span>
+            <div><h6>Pause — "Skincare · Broad"</h6><small>CPL RM 41 over RM 28 cap · 7-day</small></div>
+            <span class="verdict" style="color:#43d17f"><span class="dotp" style="background:#43d17f"></span>Auto-approved</span>
+          </div>
+          <div class="jrow">
+            <span class="gauge" style="--p:71"><i>71</i></span>
+            <div><h6>Boost budget — "Retarget · 30d"</h6><small>ROAS 4.1× · CTR above target</small></div>
+            <span class="verdict" style="color:var(--gold)"><span class="dotp" style="background:var(--gold)"></span>Needs review</span>
+          </div>
+          <div class="guard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width:16px;height:16px;flex:none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            AI Guard · Claude evaluated data sufficiency, logic &amp; brand fit before surfacing.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AI TEAMMATES ================= -->
+<section class="pad wrap" id="teammates">
+  <div style="text-align:center;margin-bottom:3.4rem" data-reveal>
+    <p class="eyebrow eyebrow--center">AI Teammates</p>
+    <h2 style="font-size:clamp(2.2rem,5vw,4rem);margin-top:1.2rem;font-weight:700">Specialists, not a <span class="serif iris">chatbot</span>.</h2>
+    <p style="color:var(--bone-dim);max-width:48ch;margin:1.2rem auto 0">Each teammate has a defined job and full context on your projects. Put them to work.</p>
+  </div>
+  <div class="roster" data-reveal-group>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg></span>
+      <h4>Status Reporter</h4>
+      <p>Turns a week of activity into a clean project update — highlights, blockers, what's next.</p>
+    </div>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11a9 9 0 019-9M4 11v4M4 11h4M12 22a8 8 0 008-8M20 14v-4M20 14h-4"/></svg></span>
+      <h4>Launch Planner</h4>
+      <p>Plans a feature launch end-to-end — tasks, owners, and a sequence that actually ships.</p>
+    </div>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+      <h4>Bug Investigator</h4>
+      <p>Triages incoming bugs, reproduces context, and proposes a likely root cause.</p>
+    </div>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3v18h18"/><rect x="7" y="10" width="3" height="7"/><rect x="13" y="6" width="3" height="11"/></svg></span>
+      <h4>Sprint Coach</h4>
+      <p>Balances workloads across the team and flags who's overcommitted before it bites.</p>
+    </div>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg></span>
+      <h4>Copywriter</h4>
+      <p>Edits and sharpens content in your voice — captions, briefs, replies, landing copy.</p>
+    </div>
+    <div class="mate" data-reveal-item data-hover>
+      <span class="mate__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2v4M12 18v4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M2 12h4M18 12h4M4.9 19.1l2.8-2.8M16.3 7.7l2.8-2.8"/><circle cx="12" cy="12" r="3"/></svg></span>
+      <h4>Workflow Optimizer</h4>
+      <p>Watches how you work and suggests automation rules that quietly remove the busywork.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HORIZONTAL CAPABILITIES ================= -->
+<section class="pad" id="capabilities">
+  <div class="wrap htrack-head" data-reveal>
+    <div>
+      <p class="eyebrow">Under one roof</p>
+      <h2 style="font-size:clamp(2.2rem,5vw,4rem);margin-top:1.1rem;font-weight:700;max-width:14ch">Replace the <span class="serif iris">whole stack</span>.</h2>
+    </div>
+    <p style="color:var(--bone-dim);max-width:34ch">Tasks, CRM, invoicing, ads, calendar, goals — drag through what Talous folds into one workspace.</p>
+  </div>
+  <div class="htrack-panel">
+    <div class="htrack" data-htrack>
+      <article class="cap">
+        <span class="cap__num">(01)</span>
+        <h3>Client management</h3>
+        <p>Contacts, services, invoices, payment reconciliation, and a Drive that auto-organises every client file.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></span>
+      </article>
+      <article class="cap">
+        <span class="cap__num">(02)</span>
+        <h3>CRM &amp; pipeline</h3>
+        <p>Leads from every source move through new → won, with activities, value, and follow-up tracking.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+      </article>
+      <article class="cap">
+        <span class="cap__num">(03)</span>
+        <h3>Invoicing</h3>
+        <p>Draft, sent, paid, overdue — matched against bank statements so the books reconcile themselves.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg></span>
+      </article>
+      <article class="cap">
+        <span class="cap__num">(04)</span>
+        <h3>Goals &amp; OKRs</h3>
+        <p>Objectives with measurable key results, linked to the tasks and projects actually driving them.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
+      </article>
+      <article class="cap">
+        <span class="cap__num">(05)</span>
+        <h3>Time &amp; calendar</h3>
+        <p>Two-way Google Calendar sync, AI-suggested time blocks, and real availability analysis.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+      </article>
+      <article class="cap">
+        <span class="cap__num">(06)</span>
+        <h3>Public forms</h3>
+        <p>Shareable intake forms that turn external submissions straight into tasks in your workflow.</p>
+        <span class="cap__ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<section class="pad wrap">
+  <div class="stats" data-reveal-group>
+    <div class="stat" data-reveal-item><div class="stat__n"><span data-count="5">0</span></div><div class="stat__l">Tools replaced by one</div></div>
+    <div class="stat" data-reveal-item><div class="stat__n"><span data-count="5">0</span><span class="suf">min</span></div><div class="stat__l">Meta ad sync cadence</div></div>
+    <div class="stat" data-reveal-item><div class="stat__n"><span data-count="85">0</span><span class="suf">%</span></div><div class="stat__l">AI Guard confidence floor</div></div>
+    <div class="stat" data-reveal-item><div class="stat__n"><span class="suf">100</span><span style="color:var(--bone)">%</span></div><div class="stat__l">Decisions journaled</div></div>
+  </div>
+</section>
+
+<!-- ================= BENTO ================= -->
+<section class="pad wrap">
+  <div style="margin-bottom:3rem;max-width:40ch" data-reveal>
+    <p class="eyebrow">And the rest</p>
+    <h2 style="font-size:clamp(2rem,4.6vw,3.4rem);margin-top:1.1rem;font-weight:700">The details that <span class="serif iris">add up</span>.</h2>
+  </div>
+  <div class="bento" data-reveal-group>
+    <div class="tile tile--accent tile--tall" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l1.9 5.8H20l-4.9 3.6 1.9 5.8L12 14.6 7 18.2l1.9-5.8L4 8.8h6.1z"/></svg></span>
+      <div><h4>AI chat &amp; commands</h4><p>Talk to Claude or GPT-4 with your own keys. Create and update tasks in plain language.</p></div>
+    </div>
+    <div class="tile tile--wide" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></span>
+      <div><h4>Comments, mentions &amp; approvals</h4><p>Rich discussion, reactions, and request-approval baked into every task.</p></div>
+    </div>
+    <div class="tile" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+      <div><h4>Dashboards</h4><p>Widgets for task analytics &amp; project health.</p></div>
+    </div>
+    <div class="tile" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg></span>
+      <div><h4>Documents</h4><p>OCR'd files &amp; a rich project brief.</p></div>
+    </div>
+    <div class="tile" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v12H5.2L4 17.2z"/><path d="M8 9h8M8 12h5"/></svg></span>
+      <div><h4>Telegram digests</h4><p>Alerts &amp; summaries in your DMs.</p></div>
+    </div>
+    <div class="tile tile--wide" data-reveal-item data-hover>
+      <span class="t-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8L7 17M17 7l2.8-2.8"/></svg></span>
+      <div><h4>Automation rules &amp; workflow chains</h4><p>Trigger-based flows with approval gates and auto-advancement through stages.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="pad wrap" id="faq">
+  <div style="text-align:center;margin-bottom:3.4rem" data-reveal>
+    <p class="eyebrow eyebrow--center">Questions</p>
+    <h2 style="font-size:clamp(2.2rem,5vw,3.8rem);margin-top:1.2rem;font-weight:700">Good to <span class="serif iris">know</span>.</h2>
+  </div>
+  <div class="faq" data-faq data-reveal>
+    <div class="faq__item">
+      <button class="faq__q">Will Jarvis change my ads without asking? <span class="plus"></span></button>
+      <div class="faq__a"><p>Only when you let it. Talous ships conservative — just pause and kill can auto-execute, with an 85% confidence floor. Budget and duplicate actions are off by default and require explicit opt-in. Everything else waits for you on the approvals page.</p></div>
+    </div>
+    <div class="faq__item">
+      <button class="faq__q">Which tools does Talous replace? <span class="plus"></span></button>
+      <div class="faq__a"><p>The usual agency stack: a task tool, a CRM, an invoicing app, an ad-tracking spreadsheet, and the glue between them. Because clients, projects, invoices, and campaigns share one data model, the connections are built in — not bolted on as integrations.</p></div>
+    </div>
+    <div class="faq__item">
+      <button class="faq__q">Do I bring my own AI keys? <span class="plus"></span></button>
+      <div class="faq__a"><p>Yes. Configure your own Claude or GPT-4 API keys in settings. The AI chat, commands, and Teammates all run on your keys, so you stay in control of usage and cost.</p></div>
+    </div>
+    <div class="faq__item">
+      <button class="faq__q">What gets recorded when automation runs? <span class="plus"></span></button>
+      <div class="faq__a"><p>Every decision — approved, rejected, or pending — lands in a searchable decision journal with the full reasoning: what was recommended, why, what the AI Guard thought, and what actually happened. Nothing fails silently.</p></div>
+    </div>
+    <div class="faq__item">
+      <button class="faq__q">Who is Talous built for? <span class="plus"></span></button>
+      <div class="faq__a"><p>Agencies and service providers managing multiple clients first — but marketing teams, project teams, solo operators, and freelancers run on it too. If you juggle client work, time, invoices, and campaigns, it fits.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="pad wrap" id="cta">
+  <div class="cta" data-reveal>
+    <p class="eyebrow eyebrow--center">Get started</p>
+    <h2 style="margin-top:1.4rem">Stop juggling.<br/><span class="serif iris">Start running.</span></h2>
+    <p>One canvas for every part of the agency. Bring your team, your clients, and your campaigns into Talous.</p>
+    <div class="cta__row">
+      <a class="btn btn--primary" href="#top">Start free
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+      <a class="btn btn--ghost" href="#platform">Book a demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer wrap">
+  <div class="footer__grid">
+    <div class="footer__brand">
+      <a class="logo" href="#top">
+        <svg class="logo__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <g class="spin">
+            <circle cx="16" cy="16" r="13" stroke="#8B7BFF" stroke-width="1.6"/>
+            <circle cx="16" cy="16" r="4.2" fill="#8B7BFF"/>
+            <circle cx="29" cy="16" r="2.4" fill="#FFC24B"/>
+          </g>
+        </svg>
+        <span>Talous</span>
+      </a>
+      <p>The agency operating system. One canvas for projects, clients, invoices, and AI-run campaigns.</p>
+    </div>
+    <div class="footer__col">
+      <h5>Product</h5>
+      <a href="#platform">Platform</a>
+      <a href="#jarvis">Jarvis</a>
+      <a href="#teammates">AI Teammates</a>
+      <a href="#capabilities">Capabilities</a>
+    </div>
+    <div class="footer__col">
+      <h5>Company</h5>
+      <a href="#">About</a>
+      <a href="#">Careers</a>
+      <a href="#">Security</a>
+      <a href="#">Changelog</a>
+    </div>
+    <div class="footer__col">
+      <h5>Legal</h5>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Data deletion</a>
+    </div>
+  </div>
+  <div class="footer__bot">
+    <span>© 2026 Talous. Built for agencies that move.</span>
+    <span>Run sharp.</span>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="scene.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
